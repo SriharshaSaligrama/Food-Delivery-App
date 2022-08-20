@@ -1,25 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { Route } from 'react-router-dom'
+import { AmericanFoodItems } from './Components/AmericanFoodItems';
+import { CheckOut } from './Components/CheckOut';
+import { ChineseFoodItems } from './Components/ChineseFoodItems';
+import { HomePage } from './Components/HomePage';
+import { IndianFoodItems } from './Components/IndianFoodItems';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Route path='/' component={HomePage} exact />
+      <Route path='/Indian' component={IndianFoodItems} />
+      <Route path='/American' component={AmericanFoodItems} />
+      <Route path='/Chinese' component={ChineseFoodItems} />
+      <Route path='/CheckOut' component={CheckOut} />
     </div>
-  );
+  )
 }
+
 
 export default App;
