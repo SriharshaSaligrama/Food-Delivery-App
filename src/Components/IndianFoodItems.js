@@ -14,27 +14,25 @@ export const IndianFoodItems = props => {
     const {foodItems}=useSelector(state=>state)
     const {cartItems}=useSelector(state=>state)
     const IndianFood=foodItems.filter(item=>item.Indian===true)
+    const IndianVegFood=IndianFood.filter(item=>item.isVeg)
     const subTotalArray=cartItems.map(item=>item.price)
     const subTotal=subTotalArray.length>0?subTotalArray.reduce((a,b)=>a+b):0
-    
-    const [searchedItems, setSearchedItems]=useState([])
-    const [searchText, setSearchText]=useState('')
     const [vegChecked, setVegChecked]=useState(false)
-    const [vegItems, setVegItems]=useState([])
-    const FoodArray=vegChecked?vegItems.map(item=>[item.name, item.price, item.img]):IndianFood.map(item=>[item.name, item.price, item.img])
+    const [searchedItems, setSearchedItems]=useState([...IndianFood])
+    const [searchText, setSearchText]=useState('')
     const dispatch=useDispatch()
 
     const handleChange= e => {
         e.preventDefault()
         setSearchText(e.target.value)
-        const searchedFoodItems=FoodArray.filter(food=>food[0].includes(e.target.value.toLowerCase()))
+        const searchedFoodItems=vegChecked?IndianVegFood.filter(item=>item.name.includes(e.target.value.toLowerCase())):IndianFood.filter(item=>item.name.includes(e.target.value.toLowerCase()))
         setSearchedItems(searchedFoodItems)
     }
-    
+
     const handleCheck= e=>{
         setVegChecked(!vegChecked)
-        const IndianVegFood=IndianFood.filter(item=>item.isVeg)
-        setVegItems(IndianVegFood)
+        setSearchedItems(e.target.checked?[...IndianVegFood]:[...IndianFood])
+        setSearchText('')
     }
 
     const AddtoCart = item =>{
@@ -73,9 +71,9 @@ export const IndianFoodItems = props => {
             name: 'Quantity',
             cell: (row)=>(
                 <>
-                    <Button onClick={()=>decrement(row)}>-</Button>
+                    <Button variant='light' style={{width: '25px'}} onClick={()=>decrement(row)}>-</Button>
                     {row.quantity}
-                    <Button onClick={()=>increment(row)}>+</Button>
+                    <Button variant='light' style={{width: '25px'}} onClick={()=>increment(row)}>+</Button>
                 </>
             ),
             
@@ -88,7 +86,7 @@ export const IndianFoodItems = props => {
         <div>
             <Navbar bg="light" expand="lg">
                 <Container fluid>
-                    <Navbar.Brand href="#">Indian ({searchedItems.length}/{FoodArray.length})</Navbar.Brand>
+                    <Navbar.Brand href="#">Indian ({searchedItems.length}/{vegChecked?IndianVegFood.length:IndianFood.length})</Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" />
                     <Navbar.Collapse id="navbarScroll">
                         <Nav
@@ -123,45 +121,35 @@ export const IndianFoodItems = props => {
 
             <div className='container'>
                 <div className='row'>
-                    <div className='col-md-8'>
-                        {searchedItems.length>0?
-                            <>{searchedItems.map(item=>(
-                                <Card style={{ width: '25rem', display: 'inline-block', margin: '10px'}} key={item}>
-                                    <Card.Img variant="top" src={item[2]} height='180px'/>
-                                    <Card.Body>
-                                        <Card.Title>{item[0]}</Card.Title>
-                                        <Card.Text>₹{item[1]}/-</Card.Text>
-                                        <Button variant="primary" onClick={()=>AddtoCart(item)}>Add to cart</Button>
-                                    </Card.Body>
-                                </Card>))}
+                    <div className='col-md-9'>
+                        {
+                            searchedItems.length>0?
+                            <>
+                                {
+                                    searchedItems.map(item=>(
+                                    <Card style={{ width: '18rem', display: 'inline-block', margin: '10px'}} key={item.name}>
+                                        <Card.Img variant="top" src={item.img} height='180px'/>
+                                        <Card.Body>
+                                            <Card.Title>{item.name}</Card.Title>
+                                            <Card.Text>₹{item.price}/-</Card.Text>
+                                            {
+                                                cartItems.some(cartItem=>cartItem.name===item.name)?
+                                                <Button variant="danger" onClick={()=>dispatch(removeCartItem(item))}>Remove from cart</Button>:
+                                                <Button variant="success" onClick={()=>AddtoCart(item)}>Add to cart</Button>
+                                            }
+                                        </Card.Body>
+                                    </Card>))
+                                }
                             </>:
-                            // <>No matches found</>
-                            <>{vegChecked?<>{vegItems.map(item=>(
-                                <Card style={{ width: '25rem', display: 'inline-block', margin: '10px'}} key={item.name}>
-                                    <Card.Img variant="top" src={item.img} height='180px'/>
-                                    <Card.Body>
-                                        <Card.Title>{item.name}</Card.Title>
-                                        <Card.Text>₹{item.price}/-</Card.Text>
-                                        <Button variant="primary" onClick={()=>AddtoCart(item)}>Add to cart</Button>
-                                    </Card.Body>
-                                </Card>))}</>:IndianFood.map(item=>(
-                                <Card style={{ width: '25rem', display: 'inline-block', margin: '10px'}} key={item.name}>
-                                    <Card.Img variant="top" src={item.img} height='180px'/>
-                                    <Card.Body>
-                                        <Card.Title>{item.name}</Card.Title>
-                                        <Card.Text>₹{item.price}/-</Card.Text>
-                                        <Button variant="primary" onClick={()=>AddtoCart(item)}>Add to cart</Button>
-                                    </Card.Body>
-                                </Card>
-                            ))}</>
+                            <>No matches found</>
                         }
                     </div>
                 
-                    <div className='col-md-4'>
+                    <div className='col-md-3'>
                         {cartItems.length>0?
                             <>
                                 <DataTable columns={columns} data={data} customStyles={{rows: {style: {height: '70px'}}}}/>
-                                SubTotal: {subTotal}<br/>
+                                Sub Total: {subTotal}<br/>
                                 <Link to='/CheckOut'><Button variant='success'style={{marginTop: '10px'}}>Check out</Button></Link>
                                 <Button variant='danger' style={{marginTop: '10px', marginLeft: '20px'}} onClick={handleEmptyCart}>Empty Cart</Button>
                             </>:
