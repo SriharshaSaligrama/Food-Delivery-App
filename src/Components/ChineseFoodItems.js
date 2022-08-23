@@ -7,6 +7,7 @@ import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import DataTable from 'react-data-table-component';
+import Image from 'react-bootstrap/Image'
 import { addCartItem, decrementQuantity, emptyCart, incrementQuantity, removeCartItem } from '../Redux/Actions/CartActions';
 import { Link } from 'react-router-dom';
 
@@ -130,6 +131,7 @@ export const ChineseFoodItems = props => {
                                     <Card style={{ width: '18rem', display: 'inline-block', margin: '10px'}} key={item.name}>
                                         <Card.Img variant="top" src={item.img} height='180px'/>
                                         <Card.Body>
+                                            {item.isVeg?<Image src='https://i.ibb.co/kQQyRwP/veg.png'/>:<Image src='https://i.ibb.co/stN0gCz/non-veg.png'/>}
                                             <Card.Title>{item.name}</Card.Title>
                                             <Card.Text>₹{item.price}/-</Card.Text>
                                             {
